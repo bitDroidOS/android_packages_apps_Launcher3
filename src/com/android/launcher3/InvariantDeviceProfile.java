@@ -25,6 +25,9 @@ import static com.android.launcher3.LauncherPrefs.GRID_NAME;
 import static com.android.launcher3.LauncherPrefs.NON_FIXED_LANDSCAPE_GRID_NAME;
 import static com.android.launcher3.LauncherPrefs.SHOW_DESKTOP_LABELS;
 import static com.android.launcher3.LauncherPrefs.SHOW_DRAWER_LABELS;
+import static com.android.launcher3.LauncherPrefs.DV_DRAWER_COLUMNS;
+import static com.android.launcher3.LauncherPrefs.DV_ICON_SCALE;
+import static com.android.launcher3.LauncherPrefs.DV_TEXT_SCALE;
 import static com.android.launcher3.LauncherPrefs.SHOW_HOTSEAT_QSB;
 import static com.android.launcher3.LauncherPrefs.WORKSPACE_ITEMS_LABEL_HIDDEN;
 import static com.android.launcher3.Utilities.dpiFromPx;
@@ -310,14 +313,18 @@ public class InvariantDeviceProfile {
                     DRAWER_OPEN_KEYBOARD.getSharedPrefKey().equals(key) ||
                     SHOW_DESKTOP_LABELS.getSharedPrefKey().equals(key) ||
                     SHOW_DRAWER_LABELS.getSharedPrefKey().equals(key) ||
-                    SHOW_HOTSEAT_QSB.getSharedPrefKey().equals(key)) {
+                    SHOW_HOTSEAT_QSB.getSharedPrefKey().equals(key) ||
+                    DV_ICON_SCALE.getSharedPrefKey().equals(key) ||
+                    DV_TEXT_SCALE.getSharedPrefKey().equals(key) ||
+                    DV_DRAWER_COLUMNS.getSharedPrefKey().equals(key)) {
                 onConfigChanged();
             }
         };
         prefs.addListener(prefListener, FIXED_LANDSCAPE_MODE, ENABLE_TWOLINE_ALLAPPS_TOGGLE,
-                SHOW_HOTSEAT_QSB);
+                SHOW_HOTSEAT_QSB, DV_ICON_SCALE, DV_TEXT_SCALE, DV_DRAWER_COLUMNS);
         lifeCycle.addCloseable(() -> prefs.removeListener(prefListener,
-                FIXED_LANDSCAPE_MODE, ENABLE_TWOLINE_ALLAPPS_TOGGLE, SHOW_HOTSEAT_QSB));
+                FIXED_LANDSCAPE_MODE, ENABLE_TWOLINE_ALLAPPS_TOGGLE, SHOW_HOTSEAT_QSB,
+                DV_ICON_SCALE, DV_TEXT_SCALE, DV_DRAWER_COLUMNS));
 
         SimpleBroadcastReceiver localeReceiver = new SimpleBroadcastReceiver(context,
                 mMainExecutor, i -> onConfigChanged());
@@ -338,6 +345,27 @@ public class InvariantDeviceProfile {
             mPrefs.put(NON_FIXED_LANDSCAPE_GRID_NAME, gridName);
         }
         mPrefs.put(FIXED_LANDSCAPE_MODE, true);
+    }
+
+    private static float dvPercent(String value) {
+        int p = dvInt(value);
+        if (p < 50 || p > 150) p = 100;
+        return p / 100f;
+    }
+
+    private static int dvInt(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private static float[] dvScaled(float[] src, float scale) {
+        if (src == null || scale == 1f) return src;
+        float[] out = new float[src.length];
+        for (int i = 0; i < src.length; i++) out[i] = src[i] * scale;
+        return out;
     }
 
     private void initGrid(String gridName) {
@@ -441,7 +469,10 @@ public class InvariantDeviceProfile {
 
         inlineNavButtonsEndSpacing = closestProfile.inlineNavButtonsEndSpacing;
 
-        iconSize = displayOption.iconSizes;
+        // DriftVaneOS: user icon / label size and drawer columns
+        final float dvIcon = dvPercent(mPrefs.get(DV_ICON_SCALE));
+        final float dvText = dvPercent(mPrefs.get(DV_TEXT_SCALE));
+        iconSize = dvScaled(displayOption.iconSizes, dvIcon);
         float maxIconSize = iconSize[0];
         for (int i = 1; i < iconSize.length; i++) {
             maxIconSize = Math.max(maxIconSize, iconSize[i]);
@@ -450,7 +481,7 @@ public class InvariantDeviceProfile {
 
         fillResIconDpi = getLauncherIconDensity(iconBitmapSize);
 
-        iconTextSize = displayOption.textSizes;
+        iconTextSize = dvScaled(displayOption.textSizes, dvText);
 
         minCellSize = displayOption.minCellSize;
 
@@ -474,8 +505,13 @@ public class InvariantDeviceProfile {
 
         allAppsCellSize = displayOption.allAppsCellSize;
         allAppsBorderSpaces = displayOption.allAppsBorderSpaces;
-        allAppsIconSize = displayOption.allAppsIconSizes;
-        allAppsIconTextSize = displayOption.allAppsIconTextSizes;
+        allAppsIconSize = dvScaled(displayOption.allAppsIconSizes, dvIcon);
+        allAppsIconTextSize = dvScaled(displayOption.allAppsIconTextSizes, dvText);
+        int dvColumns = dvInt(mPrefs.get(DV_DRAWER_COLUMNS));
+        if (dvColumns >= 3 && dvColumns <= 7) {
+            numAllAppsColumns = dvColumns;
+            numDatabaseAllAppsColumns = dvColumns;
+        }
 
         inlineQsb = closestProfile.inlineQsb;
 

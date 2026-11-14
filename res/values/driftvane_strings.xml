@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: DriftVaneOS
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="dv_icon_scale_title">Icon size</string>
+    <string name="dv_text_scale_title">Label size</string>
+    <string name="dv_drawer_columns_title">App drawer columns</string>
+    <string-array name="dv_scale_entries">
+        <item>80%</item>
+        <item>90%</item>
+        <item>100% (default)</item>
+        <item>110%</item>
+        <item>120%</item>
+        <item>130%</item>
+    </string-array>
+    <string-array name="dv_scale_values" translatable="false">
+        <item>80</item>
+        <item>90</item>
+        <item>100</item>
+        <item>110</item>
+        <item>120</item>
+        <item>130</item>
+    </string-array>
+    <string-array name="dv_columns_entries">
+        <item>Default</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+    <string-array name="dv_columns_values" translatable="false">
+        <item>0</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- bitDroid Bloom: dark text and icons on the light Recents pills -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:alpha="0.38" android:color="@android:color/system_accent1_900" />
+    <item android:color="@android:color/system_accent1_900" />
+</selector>

@@ -102,6 +102,8 @@ public final class OverviewComponentObserver {
     private BaseContainerInterface mDefaultDisplayContainerInterface;
     private Intent mOverviewIntent;
     private boolean mIsHomeAndOverviewSame;
+    // DriftVaneOS: true when Launcher3 has no home activity (DriftHome is the home app)
+    private final boolean mNoOwnHome;
     private boolean mIsDefaultHome;
     private boolean mIsHomeDisabled;
 
@@ -125,11 +127,18 @@ public final class OverviewComponentObserver {
         mMyPrimaryHomeIntent = new Intent(mCurrentPrimaryHomeIntent).setPackage(
                 context.getPackageName());
         ResolveInfo info = context.getPackageManager().resolveActivity(mMyPrimaryHomeIntent, 0);
-        ComponentName myHomeComponent =
-                new ComponentName(context.getPackageName(), info.activityInfo.name);
+        // DriftVaneOS: Launcher3 is not a home app anymore (DriftHome is), so there may be no
+        // home activity here. Then we always run the standalone ("fallback") Recents.
+        mNoOwnHome = info == null || info.activityInfo == null;
+        ComponentName myHomeComponent = mNoOwnHome
+                ? new ComponentName(context.getPackageName(),
+                        "com.android.launcher3.uioverrides.QuickstepLauncher")
+                : new ComponentName(context.getPackageName(), info.activityInfo.name);
         mMyPrimaryHomeIntent.setComponent(myHomeComponent);
 
-        mConfigChangesMap.append(myHomeComponent.hashCode(), info.activityInfo.configChanges);
+        if (!mNoOwnHome) {
+            mConfigChangesMap.append(myHomeComponent.hashCode(), info.activityInfo.configChanges);
+        }
         mSetupWizardPkg = context.getString(R.string.setup_wizard_pkg);
 
         ComponentName fallbackComponent = new ComponentName(context, RecentsActivity.class);
@@ -232,7 +241,7 @@ public final class OverviewComponentObserver {
                 + ", isDefaultHomeNull=" + (defaultHome == null)
                 + ", mIsDefaultHome=" + mIsDefaultHome);
 
-        if (!mIsHomeDisabled && (defaultHome == null || mIsDefaultHome)) {
+        if (!mNoOwnHome && !mIsHomeDisabled && (defaultHome == null || mIsDefaultHome)) {
             // User default home is same as our home app. Use Overview integrated in Launcher.
             if (enableLauncherOverviewInWindow.isTrue()) {
                 RecentsWindowManager recentsWindowManager = mRecentsWindowManagerRepository.get(

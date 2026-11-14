@@ -70,7 +70,7 @@
         android:key="pref_allapps_themed_icons"
         android:title="@string/pref_themed_icons_title"
         android:summary="@string/pref_themed_icons_summary"
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:persistent="true" />
 
     <androidx.preference.PreferenceScreen
@@ -93,6 +93,34 @@
         android:title="@string/drawer_show_labels"
         android:defaultValue="true"
         android:persistent="true" />
+
+    <!-- DriftVaneOS -->
+    <ListPreference
+        android:key="pref_dv_icon_scale"
+        android:title="@string/dv_icon_scale_title"
+        android:entries="@array/dv_scale_entries"
+        android:entryValues="@array/dv_scale_values"
+        android:defaultValue="100"
+        android:persistent="true"
+        launcher:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        android:key="pref_dv_text_scale"
+        android:title="@string/dv_text_scale_title"
+        android:entries="@array/dv_scale_entries"
+        android:entryValues="@array/dv_scale_values"
+        android:defaultValue="100"
+        android:persistent="true"
+        launcher:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        android:key="pref_dv_drawer_columns"
+        android:title="@string/dv_drawer_columns_title"
+        android:entries="@array/dv_columns_entries"
+        android:entryValues="@array/dv_columns_values"
+        android:defaultValue="0"
+        android:persistent="true"
+        launcher:useSimpleSummaryProvider="true" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"

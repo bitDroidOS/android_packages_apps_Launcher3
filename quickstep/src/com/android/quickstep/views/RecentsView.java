@@ -1041,6 +1041,11 @@ public abstract class RecentsView<
         // OverviewActionsView related.
         mIs3PLauncher = !mOverviewComponentObserver.isHomeAndOverviewSame();
         mActionsView = actionsView;
+        // DriftVaneOS: Clear all button in the bottom action row
+        View clearAll = mActionsView.findViewById(R.id.action_clear_all);
+        if (clearAll != null) {
+            clearAll.setOnClickListener(this::dismissAllTasks);
+        }
         mActionsView.updateHiddenFlags(HIDDEN_NO_TASKS, !hasTaskViews());
         // Update flags for 1p/3p launchers
         mActionsView.updateFor3pLauncher(mIs3PLauncher);
@@ -3540,7 +3545,6 @@ public abstract class RecentsView<
         }
     }
 
-    @SuppressWarnings("unused")
     private void dismissAllTasks(View view) {
         InteractionJankMonitorWrapper.begin(this, Cuj.CUJ_LAUNCHER_OVERVIEW_CLEAR_ALL);
         mDismissUtils.dismissAllTasks();
